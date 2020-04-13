@@ -11,4 +11,5 @@ TODO:
 - [ ] software security? How can I test out software security checks in my pipeline?
 - [ ] try out some new network configuration I didn't try before
 - [ ] build a small command line automation in go
-
+- [ ] start working with deploying a managed database
+- [ ] use SNS to collect prometheus alerts
