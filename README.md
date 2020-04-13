@@ -13,3 +13,9 @@ TODO:
 - [ ] build a small command line automation in go
 - [ ] start working with deploying a managed database
 - [ ] use SNS to collect prometheus alerts
+
+### Recurring terms
+- [ ] jenkins
+- [ ] vm provisioning puppet, chef, ansible
+- [ ] scripting language (python, go, ruby)
+- [ ] linux administration
