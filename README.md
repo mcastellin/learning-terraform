@@ -19,3 +19,15 @@ TODO:
 - [ ] vm provisioning puppet, chef, ansible
 - [ ] scripting language (python, go, ruby)
 - [ ] linux administration
+
+
+# First experiment with Terraform
+
+In this first experiment we deploy a container in local Docker with Terraform
+
+```
+terraform init          # initializes the .terraform directory to contain the status
+terraform apply         # prepares the plan and apply modifications
+
+terraform destroy       # deletes all created resources
+```
