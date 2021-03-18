@@ -26,6 +26,9 @@ resource "aws_key_pair" "ssh-jenkins-worker" {
 
 
 # Create AMIs
+# NOTE: for ansible provisioners to work we need to have boto3 library installed
+# in the node we use to run our terraform scripts
+# pip3 install boto3 --user
 resource "aws_instance" "jenkins-master" {
   provider                    = aws.region-master
   ami                         = data.aws_ssm_parameter.linuxAmi.value
@@ -42,6 +45,13 @@ resource "aws_instance" "jenkins-master" {
   depends_on = [
     aws_main_route_table_association.set-master-default-rt-assoc
   ]
+
+  provisioner "local-exec" {
+    command = <<EOF
+    aws --profile ${var.profile} ec2 wait instance-status-ok --region ${var.region-master} --instance-ids ${self.id}
+    ansible-playbook --extra-vars 'passed_in_hosts=tag_Name_${self.tags.Name}' ansible_templates/jenkins_master.yaml
+    EOF
+  }
 }
 
 
@@ -64,4 +74,11 @@ resource "aws_instance" "jenkins-workers" {
     aws_main_route_table_association.set-worker-default-rt-assoc,
     aws_instance.jenkins-master
   ]
+
+  provisioner "local-exec" {
+    command = <<EOF
+    aws --profile ${var.profile} ec2 wait instance-status-ok --region ${var.region-worker} --instance-ids ${self.id}
+    ansible-playbook --extra-vars 'passed_in_hosts=tag_name_${self.tags.Name}' ansible_templates/jenkins_worker.yaml
+    EOF
+  }
 }

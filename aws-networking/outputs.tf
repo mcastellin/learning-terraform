@@ -8,3 +8,11 @@ output "Jenkins-Workers-Public-IP" {
     instance.id => instance.public_ip
   }
 }
+
+output "LB-Dns-Name" {
+  value = aws_lb.application-lb.dns_name
+}
+
+output "Url" {
+  value = aws_route53_record.jenkins.fqdn
+}

@@ -27,3 +27,15 @@ variable "workers-count" {
   type    = number
   default = 1
 }
+
+variable "webserver-port" {
+  type    = number
+  default = 80
+}
+
+# use this command to list the available hosted zones to get the Dns form
+# aws route53 list-hosted-zones | jq '.HostedZones[0].Name'
+variable "dns-name" {
+  type    = string
+  default = "cmcloudlab953.info."
+}
