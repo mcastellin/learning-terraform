@@ -1,7 +1,7 @@
 # get already publicly available hosted zones
 data "aws_route53_zone" "dns" {
   provider = aws.region-master
-  name     = var.dns-name
+  name     = var.dns_name
 }
 
 resource "aws_route53_record" "cert-validation" {

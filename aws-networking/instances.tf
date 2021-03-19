@@ -78,7 +78,23 @@ resource "aws_instance" "jenkins-workers" {
   provisioner "local-exec" {
     command = <<EOF
     aws --profile ${var.profile} ec2 wait instance-status-ok --region ${var.region-worker} --instance-ids ${self.id}
-    ansible-playbook --extra-vars 'passed_in_hosts=tag_name_${self.tags.Name}' ansible_templates/jenkins_worker.yaml
+    ansible-playbook --extra-vars 'passed_in_hosts=tag_Name_${self.tags.Name} master_ip=${aws_instance.jenkins-master.private_ip}' ansible_templates/jenkins_worker.yaml
     EOF
   }
+
+  # WARNING!! using provisioners is not a recommended practice!
+  # I should read more about it online and fine an aternative method to initialise instances other than using provisioners
+  # # workers are ephimeral so we need a destroy provisioner for Jenkins worker to de-register
+  # provisioner "remote-exec" {
+  #   when = destroy
+  #   inline = [
+  #     "java -jar /home/ec2-user/jenkins-cli.jar -auth @/home/ec2-user/jenkins_auth -s http://${self.triggers.master_private_ip}:8080 delete-node ${self.private_ip}"
+  #   ]
+  #   connection {
+  #     type        = "ssh"
+  #     user        = "ec2-user"
+  #     private_key = file("~/.ssh/id_rsa")
+  #     host        = self.public_ip
+  #   }
+  # }
 }
