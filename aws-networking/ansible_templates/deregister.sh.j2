@@ -1,0 +1,15 @@
+#!/bin/sh
+
+echo "Deregistering worker node: {{ipv4}} from master {{master}}"
+java -jar /home/ec2-user/jenkins-cli.jar \
+    -auth @/home/ec2-user/jenkins_auth \
+    -s http://{{master}}:8080 delete-node {{ipv4}}
+
+if [ $? != 0 ]; then
+    echo "Unable to deregister worker node."
+else
+    echo "Done."
+fi
+
+# node deprovisioning should never exit with error
+exit 0
