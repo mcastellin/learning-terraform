@@ -1,0 +1,67 @@
+---
+- hosts: "{{ passed_in_hosts }}"
+  become: yes
+  remote_user: ec2-user
+  become_user: root
+  tasks:
+    - name: Install required packages
+      yum:
+        name: "{{ package }}"
+        state: present
+      vars:
+        package:
+          - wget
+          - java-1.8.0-openjdk-devel
+          - git
+
+    - name: Clone preconfigured Jenkins files
+      git:
+        repo: https://github.com/linuxacademy/content-terraform-jenkins.git
+        dest: /tmp/jenkins
+
+    - name: Add Jenkins Yum Repo
+      get_url:
+        url: https://pkg.jenkins.io/redhat/jenkins.repo
+        dest: /etc/yum.repos.d/jenkins.repo
+
+    - name: Import GPG Key for Jenkins Repo
+      rpm_key:
+        state: present
+        key: https://pkg.jenkins.io/redhat/jenkins.io.key
+
+    - name: Install Jenkins
+      yum:
+        name: jenkins
+        state: present
+    - name: Temporarly Stop Jenkins
+      service:
+        name: jenkins
+        state: stopped
+
+    - name: Delete Jenkins Default Dir
+      file:
+        name: /var/lib/jenkins
+        state: absent
+    - name: Copy Preconfigured Jenkins Installation Files
+      copy:
+        remote_src: yes # don't copy from the terraform controller node
+        src: /tmp/jenkins/jenkins
+        dest: /var/lib
+
+    - name: Restore Jenkins Files Ownership
+      file:
+        path: /var/lib/jenkins
+        state: directory
+        recurse: yes
+        owner: jenkins
+
+    - name: Start Jenkins
+      service:
+        name: jenkins
+        state: started
+        enabled: yes
+    
+    - name: Wait for Jenkins Started
+      shell: result_first=1; while [[ $result_first != 0 ]]; do if [[ `grep 'Jenkins is fully up and running' /var/log/jenkins/jenkins.log` ]]; then result_first=0;else sleep 4;fi;done
+      register: result
+      until: result.rc == 0
