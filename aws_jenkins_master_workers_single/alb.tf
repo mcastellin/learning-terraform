@@ -1,5 +1,5 @@
 resource "aws_lb" "application-lb" {
-  provider           = aws.region-master
+  provider           = aws.region_master
   name               = "jenkins-lb"
   internal           = false
   load_balancer_type = "application"
@@ -11,9 +11,9 @@ resource "aws_lb" "application-lb" {
 }
 
 resource "aws_lb_target_group" "app-lb-tg" {
-  provider    = aws.region-master
+  provider    = aws.region_master
   name        = "app-lb-tg"
-  port        = var.webserver-port
+  port        = var.webserver_port
   target_type = "instance"
   vpc_id      = aws_vpc.vpc_master.id
   protocol    = "HTTP"
@@ -21,7 +21,7 @@ resource "aws_lb_target_group" "app-lb-tg" {
     enabled  = true
     interval = 10
     path     = "/"
-    port     = var.webserver-port
+    port     = var.webserver_port
     protocol = "HTTP"
     matcher  = "200-299"
   }
@@ -31,7 +31,7 @@ resource "aws_lb_target_group" "app-lb-tg" {
 }
 
 resource "aws_lb_listener" "jenkins-listener-http" {
-  provider          = aws.region-master
+  provider          = aws.region_master
   load_balancer_arn = aws_lb.application-lb.arn
   port              = "80"
   protocol          = "HTTP"
@@ -51,7 +51,7 @@ resource "aws_lb_listener" "jenkins-listener-http" {
 
 # create listener for HTTPS
 resource "aws_lb_listener" "jenkins-listener-https" {
-  provider          = aws.region-master
+  provider          = aws.region_master
   load_balancer_arn = aws_lb.application-lb.arn
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   port              = 443
@@ -64,8 +64,8 @@ resource "aws_lb_listener" "jenkins-listener-https" {
 }
 
 resource "aws_lb_target_group_attachment" "jenkin-master-attach" {
-  provider         = aws.region-master
+  provider         = aws.region_master
   target_group_arn = aws_lb_target_group.app-lb-tg.arn
   target_id        = aws_instance.jenkins-master.id
-  port             = var.webserver-port
+  port             = var.webserver_port
 }

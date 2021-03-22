@@ -9,6 +9,6 @@ remote_state {
 }
 
 inputs = {
-    workers-count = 1
-    instance-type = "t3.micro"
+    workers_count = 1
+    instance_type = "t3.micro"
 }

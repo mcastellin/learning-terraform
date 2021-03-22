@@ -1,5 +1,5 @@
 resource "aws_security_group" "lb-sg" {
-  provider    = aws.region-master
+  provider    = aws.region_master
   name        = "lb-sg"
   description = "Allow HTTP and HTTPs traffic to Jenkins SG"
   vpc_id      = aws_vpc.vpc_master.id
@@ -28,7 +28,7 @@ resource "aws_security_group" "lb-sg" {
 
 
 resource "aws_security_group" "jenkins-sg" {
-  provider    = aws.region-master
+  provider    = aws.region_master
   name        = "jenkins-sg"
   description = "Allow tcp 8080 and 22 traffic"
   vpc_id      = aws_vpc.vpc_master.id
@@ -41,8 +41,8 @@ resource "aws_security_group" "jenkins-sg" {
   }
   ingress {
     description     = "Allow anyone 8080 tcp traffic"
-    from_port       = var.webserver-port
-    to_port         = var.webserver-port
+    from_port       = var.webserver_port
+    to_port         = var.webserver_port
     protocol        = "tcp"
     security_groups = [aws_security_group.lb-sg.id]
   }
@@ -64,7 +64,7 @@ resource "aws_security_group" "jenkins-sg" {
 
 
 resource "aws_security_group" "jenkins-worker-sg" {
-  provider    = aws.region-worker
+  provider    = aws.region_worker
   name        = "jenkins-worker-sg"
   description = "Allow ssh traffic from the jenkins master nodes"
   vpc_id      = aws_vpc.vpc_worker.id

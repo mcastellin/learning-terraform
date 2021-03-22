@@ -1,11 +1,11 @@
 # get already publicly available hosted zones
 data "aws_route53_zone" "dns" {
-  provider = aws.region-master
+  provider = aws.region_master
   name     = var.dns_name
 }
 
 resource "aws_route53_record" "cert-validation" {
-  provider = aws.region-master
+  provider = aws.region_master
 
   # can use in any terraform resource to generate an "each" object populated with an iteration
   for_each = {
@@ -26,7 +26,7 @@ resource "aws_route53_record" "cert-validation" {
 }
 
 resource "aws_route53_record" "jenkins" {
-  provider = aws.region-master
+  provider = aws.region_master
   zone_id  = data.aws_route53_zone.dns.zone_id
   name     = join(".", ["jenkins", data.aws_route53_zone.dns.name])
   type     = "A"

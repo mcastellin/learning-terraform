@@ -1,11 +1,11 @@
 # Retrieve from the SSM parameter the latest ami version ID
 data "aws_ssm_parameter" "linuxAmi" {
-  provider = aws.region-master
+  provider = aws.region_master
   name     = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
 }
 
 data "aws_ssm_parameter" "linuxAmiWorker" {
-  provider = aws.region-worker
+  provider = aws.region_worker
   name     = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
 }
 
@@ -13,13 +13,13 @@ data "aws_ssm_parameter" "linuxAmiWorker" {
 # generate keypair with `ssh-keygen -t rsa`
 
 resource "aws_key_pair" "ssh-jenkins-master" {
-  provider   = aws.region-master
+  provider   = aws.region_master
   key_name   = "jenkins"
   public_key = file("~/.ssh/id_rsa.pub")
 }
 
 resource "aws_key_pair" "ssh-jenkins-worker" {
-  provider   = aws.region-worker
+  provider   = aws.region_worker
   key_name   = "jenkins"
   public_key = file("~/.ssh/id_rsa.pub")
 }
@@ -30,9 +30,9 @@ resource "aws_key_pair" "ssh-jenkins-worker" {
 # in the node we use to run our terraform scripts
 # pip3 install boto3 --user
 resource "aws_instance" "jenkins-master" {
-  provider                    = aws.region-master
+  provider                    = aws.region_master
   ami                         = data.aws_ssm_parameter.linuxAmi.value
-  instance_type               = var.instance-type
+  instance_type               = var.instance_type
   key_name                    = aws_key_pair.ssh-jenkins-master.key_name
   associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.jenkins-sg.id]
@@ -48,7 +48,7 @@ resource "aws_instance" "jenkins-master" {
 
   provisioner "local-exec" {
     command = <<EOF
-    aws --profile ${var.profile} ec2 wait instance-status-ok --region ${var.region-master} --instance-ids ${self.id}
+    aws --profile ${var.profile} ec2 wait instance-status-ok --region ${var.region_master} --instance-ids ${self.id}
     ansible-playbook --extra-vars 'passed_in_hosts=tag_Name_${self.tags.Name}' ansible_templates/jenkins_master.yaml
     EOF
   }
@@ -56,13 +56,13 @@ resource "aws_instance" "jenkins-master" {
 
 
 resource "aws_instance" "jenkins-workers" {
-  provider = aws.region-worker
+  provider = aws.region_worker
 
   # count is a default field available for any resource in terraform
-  count = var.workers-count
+  count = var.workers_count
 
   ami                         = data.aws_ssm_parameter.linuxAmiWorker.value
-  instance_type               = var.instance-type
+  instance_type               = var.instance_type
   key_name                    = aws_key_pair.ssh-jenkins-worker.key_name
   associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.jenkins-worker-sg.id]
@@ -77,7 +77,7 @@ resource "aws_instance" "jenkins-workers" {
 
   provisioner "local-exec" {
     command = <<EOF
-    aws --profile ${var.profile} ec2 wait instance-status-ok --region ${var.region-worker} --instance-ids ${self.id}
+    aws --profile ${var.profile} ec2 wait instance-status-ok --region ${var.region_worker} --instance-ids ${self.id}
     ansible-playbook --extra-vars 'passed_in_hosts=tag_Name_${self.tags.Name} master_ip=${aws_instance.jenkins-master.private_ip}' ansible_templates/jenkins_worker.yaml
     EOF
   }
