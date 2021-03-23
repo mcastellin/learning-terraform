@@ -20,7 +20,9 @@ module "acm_certificate" {
     aws = aws.region_master
   }
 
-  dns_name = var.dns_name
+  dns_name      = var.dns_name
+  subdomain     = "jenkins"
+  tag_cert_name = "Jenkins"
 }
 
 
@@ -41,7 +43,7 @@ module "jenkins_node_master" {
   lb_subnets      = [module.vpc.master_subnets.subnet_1, module.vpc.master_subnets.subnet_2]
   lb_sec_group_id = aws_security_group.lb-sg.id
 
-  acm_certificate_arn = module.acm_certificate.cert_arn
+  acm_certificate_arn = module.acm_certificate.cert.arn
 }
 
 module "jenkins_node_workers" {

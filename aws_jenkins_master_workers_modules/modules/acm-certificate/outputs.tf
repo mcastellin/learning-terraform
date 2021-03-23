@@ -1,3 +1,6 @@
-output "cert_arn" {
-  value = aws_acm_certificate.jenkins-lb-https.arn
+output "cert" {
+  value = {
+    arn         = aws_acm_certificate.lb_https_cert.arn
+    domain_name = aws_acm_certificate.lb_https_cert.domain_name
+  }
 }

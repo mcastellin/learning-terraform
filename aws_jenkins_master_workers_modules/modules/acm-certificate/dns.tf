@@ -6,7 +6,7 @@ data "aws_route53_zone" "dns" {
 resource "aws_route53_record" "cert-validation" {
   # can use in any terraform resource to generate an "each" object populated with an iteration
   for_each = {
-    for val in aws_acm_certificate.jenkins-lb-https.domain_validation_options :
+    for val in aws_acm_certificate.lb_https_cert.domain_validation_options :
     val.domain_name => {
       name   = val.resource_record_name
       record = val.resource_record_value

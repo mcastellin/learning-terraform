@@ -1,7 +1,30 @@
-# Infrastructure as Code Example
+# IaC - Jenkins Master-Worker Setup on AWS
 
-TODO list:
-- [x] The destroy provisioner for nodes is kinda deprecated so we need to find another way of deregistering nodes (like the idea of using systemd)
-- [ ] Review the entire terraform setup and try come up with additional parametrization that we can use to replicate this whole setup multiple times for test/production environments
-- [x] I don't like the fact that I need to hardcode values for the backend, so let's try introduce terragrunt to manage TF backends
-- [ ] The final touch would be to introduce infrastructure automation testing with terratest, so reorganise the project a little to accommodate that. Ideally we want to run the test from a docker container like I've seen here https://github.com/mineiros-io/terraform-aws-route53
+This terraform project is my first infrastructure as code implementation with Terraform.
+All resources are coded in a flat folder structure with multiple terraform files. In a second iteration
+I'm going to implement the same infrastructure with Terraform modules to create reusable and more testable IaC snippets.
+
+## How to run the Terraform scripts
+This terraform setup uses an S3 backend that I have parametrised using Terragrunt.
+
+I'm using a cloud lab on AWS that already has a Route53 default zone configured. To retrieve and set the zone I run the `setup.sh` script first
+
+```bash
+. ./setup.sh
+```
+
+Once the `setup.sh` script has set all environment variables with values read from the AWS account I can create the infrastructure with:
+
+```bash
+terragrunt init
+terragrunt plan
+terragrunt apply
+```
+
+## Additional configuration
+
+An interesting configuration option is the `workers_count` variable. Use this with `terragrunt apply` to dynamically change the number of worker nodes to be deployed:
+
+```bash
+terragrunt apply -var "workers_count=2"
+```
