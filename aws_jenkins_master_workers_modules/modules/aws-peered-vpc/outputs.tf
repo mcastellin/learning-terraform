@@ -18,3 +18,13 @@ output "peer_subnets" {
     "subnet_${index + 1}" => net.id
   }
 }
+
+output "master_subnets_list" {
+  description = "same subnet ids presented as a list"
+  value       = [for net in aws_subnet.master_subnets : net.id]
+}
+
+output "peer_subnets_list" {
+  description = "same subnet ids presented as a list"
+  value       = [for net in aws_subnet.peer_subnets : net.id]
+}

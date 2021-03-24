@@ -1,10 +1,10 @@
 # Infrastructure as Code Example
 
 TODO list:
-- [ ] The final touch would be to introduce infrastructure automation testing with terratest, so reorganise the project a little to accommodate that. Ideally we want to run the test from a docker container like I've seen here https://github.com/mineiros-io/terraform-aws-route53
-- [ ] Refactor the aws-peered-vpc module so we don't use hardcoded values for cidr blocks.
-- [ ] Another interesting test for modularity is use for_each and count blocks to create subnets dynamically. I want to pass as an input a list of subnet cidr blocks and the terraform script should automatically recognise the number of subnets to be created and spread them across availability zones
-- [ ] Introduce test automation for the moduled vpc peering creation and try change the number of subnets to test they are created correctly
+- [x] The final touch would be to introduce infrastructure automation testing with terratest, so reorganise the project a little to accommodate that. Ideally we want to run the test from a docker container like I've seen here https://github.com/mineiros-io/terraform-aws-route53
+- [x] Refactor the aws-peered-vpc module so we don't use hardcoded values for cidr blocks.
+- [x] Another interesting test for modularity is use for_each and count blocks to create subnets dynamically. I want to pass as an input a list of subnet cidr blocks and the terraform script should automatically recognise the number of subnets to be created and spread them across availability zones
+- [x] Introduce test automation for the moduled vpc peering creation and try change the number of subnets to test they are created correctly
 - [ ] Refactor the two modules for Jenkins master and worker nodes and create a single module that can provision both, master and worker nodes. Same principle applies as the VPC subnets, it should automatically provision the required number of workers.
 - [ ] Configure Jenkins master node for high availabiliy. This is a very large item:
   - [ ] For high availability the jenkins master should be on an autoscaling group spread across multiple availability zones
