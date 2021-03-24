@@ -29,6 +29,10 @@ module "acm_certificate" {
 module "jenkins_node_master" {
   source = "./modules/jenkins-node-master"
 
+  depends_on = [
+    module.vpc
+  ]
+
   providers = {
     aws = aws.region_master
   }
@@ -52,6 +56,10 @@ module "jenkins_node_workers" {
   providers = {
     aws = aws.region_worker
   }
+
+  depends_on = [
+    module.jenkins_node_master
+  ]
 
   workers_count     = var.workers_count
   region            = var.region_worker

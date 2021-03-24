@@ -7,25 +7,32 @@ terraform {
   }
 }
 
+locals {
+  master_subnets_count = length(var.master_vpc_subnets_cird)
+  peer_subnets_count   = length(var.peer_vpc_subnets_cidr)
+}
+
 # Create VPCs
 resource "aws_vpc" "vpc_master" {
   provider             = aws.region_master
-  cidr_block           = "10.0.0.0/16"
+  cidr_block           = var.master_vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
+
   tags = {
-    "Name" = "master-vpc-jenkins"
+    for key, value in var.tag_master_vpc :
+    key => value
   }
 }
 
-
 resource "aws_vpc" "vpc_peer" {
   provider             = aws.region_peer
-  cidr_block           = "192.168.0.0/16"
+  cidr_block           = var.peer_vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
   tags = {
-    "Name" = "peer-vpc-jenkins"
+    for key, value in var.tag_peer_vpc :
+    key => value
   }
 }
 
@@ -46,24 +53,27 @@ data "aws_availability_zones" "azs" {
   state    = "available"
 }
 
-resource "aws_subnet" "subnet_1_master" {
-  provider          = aws.region_master
-  availability_zone = element(data.aws_availability_zones.azs.names, 0)
+resource "aws_subnet" "master_subnets" {
+  provider = aws.region_master
+  count    = local.master_subnets_count
+
+  availability_zone = element(data.aws_availability_zones.azs.names, count.index)
   vpc_id            = aws_vpc.vpc_master.id
-  cidr_block        = "10.0.1.0/24"
+  cidr_block        = element(var.master_vpc_subnets_cird, count.index)
 }
 
-resource "aws_subnet" "subnet_2_master" {
-  provider          = aws.region_master
-  availability_zone = element(data.aws_availability_zones.azs.names, 1)
-  vpc_id            = aws_vpc.vpc_master.id
-  cidr_block        = "10.0.2.0/24"
+data "aws_availability_zones" "peer_azs" {
+  provider = aws.region_peer
+  state    = "available"
 }
 
-resource "aws_subnet" "subnet_1_peer" {
-  provider   = aws.region_peer
-  vpc_id     = aws_vpc.vpc_peer.id
-  cidr_block = "192.168.1.0/24"
+resource "aws_subnet" "peer_subnets" {
+  provider = aws.region_peer
+  count    = local.peer_subnets_count
+
+  availability_zone = element(data.aws_availability_zones.peer_azs.names, count.index)
+  vpc_id            = aws_vpc.vpc_peer.id
+  cidr_block        = element(var.peer_vpc_subnets_cidr, count.index)
 }
 
 # VPC Peering
@@ -92,10 +102,17 @@ resource "aws_route_table" "internet_route" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
-  route {
-    cidr_block                = "192.168.1.0/24"
-    vpc_peering_connection_id = aws_vpc_peering_connection.master_peer.id
+
+  # routing connection requests to peered vpc through the vpc_peering connection
+  dynamic "route" {
+    for_each = var.peer_vpc_subnets_cidr
+    iterator = peer_cidr
+    content {
+      cidr_block                = peer_cidr.value
+      vpc_peering_connection_id = aws_vpc_peering_connection.master_peer.id
+    }
   }
+
   lifecycle {
     ignore_changes = all
   }
@@ -118,10 +135,17 @@ resource "aws_route_table" "internet_route_peer" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw_peer.id
   }
-  route {
-    cidr_block                = "10.0.1.0/24"
-    vpc_peering_connection_id = aws_vpc_peering_connection.master_peer.id
+
+  # routing connection requests to master vpc through the vpc_peering connection
+  dynamic "route" {
+    for_each = var.master_vpc_subnets_cird
+    iterator = master_cidr
+    content {
+      cidr_block                = master_cidr.value
+      vpc_peering_connection_id = aws_vpc_peering_connection.master_peer.id
+    }
   }
+
   lifecycle {
     ignore_changes = all
   }

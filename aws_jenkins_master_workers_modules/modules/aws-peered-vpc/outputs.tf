@@ -7,13 +7,14 @@ output "vpc_id" {
 
 output "master_subnets" {
   value = {
-    subnet_1 = aws_subnet.subnet_1_master.id
-    subnet_2 = aws_subnet.subnet_2_master.id
+    for index, net in aws_subnet.master_subnets :
+    "subnet_${index + 1}" => net.id
   }
 }
 
 output "peer_subnets" {
   value = {
-    subnet_1 = aws_subnet.subnet_1_peer.id
+    for index, net in aws_subnet.peer_subnets :
+    "subnet_${index + 1}" => net.id
   }
 }
