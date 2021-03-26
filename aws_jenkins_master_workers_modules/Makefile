@@ -21,7 +21,12 @@ go-test:
 .PHONY: test
 test: go-test clean
 
+.PHONY: fmt
+fmt:
+	$(call tf-format)
+
 
 # define helper functions
 rm-command = rm -rf ${1}
 go-test = cd test/ && go test -v
+tf-format = terraform fmt -recursive

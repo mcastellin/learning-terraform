@@ -5,7 +5,8 @@ TODO list:
 - [x] Refactor the aws-peered-vpc module so we don't use hardcoded values for cidr blocks.
 - [x] Another interesting test for modularity is use for_each and count blocks to create subnets dynamically. I want to pass as an input a list of subnet cidr blocks and the terraform script should automatically recognise the number of subnets to be created and spread them across availability zones
 - [x] Introduce test automation for the moduled vpc peering creation and try change the number of subnets to test they are created correctly
-- [ ] Refactor the two modules for Jenkins master and worker nodes and create a single module that can provision both, master and worker nodes. Same principle applies as the VPC subnets, it should automatically provision the required number of workers.
+- [ ] Refactor the two modules for Jenkins master and worker nodes and create a single module that can provision both, master and worker nodes. Same principle applies as the VPC subnets, it should automatically provision the required number of workers. **Hint: use ${path.module} to reference files in the current module directory**
+- [ ] Create a new module to deploy a bastion server and remove public access from the launch configuration
 - [ ] Configure Jenkins master node for high availabiliy. This is a very large item:
   - [ ] For high availability the jenkins master should be on an autoscaling group spread across multiple availability zones
   - [ ] For this reason we have to change the provisioning method from push (local-exec) to pull (cloud-init that pulls and execute ansible script)
