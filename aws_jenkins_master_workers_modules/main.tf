@@ -26,45 +26,24 @@ module "acm_certificate" {
 }
 
 
-module "jenkins_node_master" {
-  source = "./modules/jenkins-node-master"
+module "jenkins_master_workers" {
+  source = "./modules/jenkins-master-workers"
 
   depends_on = [
-    module.vpc
+    module.vpc,
+    module.acm_certificate
   ]
 
   providers = {
-    aws = aws.region_master
+    aws.region_master  = aws.region_master
+    aws.region_workers = aws.region_worker
+
   }
 
-  region            = var.region_master
-  vpc_id            = module.vpc.vpc_id.master
-  subnet_id         = module.vpc.master_subnets.subnet_1
-  instance_type     = var.instance_type
-  webserver_port    = var.webserver_port
-  vpc_sec_group_ids = [aws_security_group.jenkins-sg.id]
+  master_vpc  = module.vpc.master
+  workers_vpc = module.vpc.peer
 
-  lb_subnets      = [module.vpc.master_subnets.subnet_1, module.vpc.master_subnets.subnet_2]
-  lb_sec_group_id = aws_security_group.lb-sg.id
-
-  acm_certificate_arn = module.acm_certificate.cert.arn
-}
-
-module "jenkins_node_workers" {
-  source = "./modules/jenkins-node-worker"
-
-  providers = {
-    aws = aws.region_worker
-  }
-
-  depends_on = [
-    module.jenkins_node_master
-  ]
-
-  workers_count     = var.workers_count
-  region            = var.region_worker
-  subnet_id         = module.vpc.peer_subnets.subnet_1
-  instance_type     = var.instance_type
-  vpc_sec_group_ids = [aws_security_group.jenkins-worker-sg.id]
-  master_ip         = module.jenkins_node_master.private_ip
+  workers_count       = 2
+  ssl_enabled         = true
+  ssl_certificate_arn = module.acm_certificate.cert.arn
 }

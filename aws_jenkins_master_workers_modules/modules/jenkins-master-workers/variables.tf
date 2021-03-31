@@ -1,38 +1,24 @@
 # ----------------------------------------------------
 # Network configuration
 # ----------------------------------------------------
-variable "master_subnets_list" {
-  type        = list(string)
-  description = "the list of subnets for the master instance autoscaling group"
+variable "master_vpc" {
+  description = "the vpc configuration that will host Jenkins master node"
+  type = object({
+    id      = string
+    region  = string
+    cidr    = string
+    subnets = list(string)
+  })
 }
 
-variable "workers_subnets_list" {
-  type        = list(string)
-  description = "the list of subnets for the worker instances autoscaling group"
-}
-
-variable "master_vpc_id" {
-  type = string
-}
-
-variable "workers_vpc_id" {
-  type = string
-}
-
-variable "master_vpc_cidr" {
-  type = string
-}
-
-variable "workers_vpc_cidr" {
-  type = string
-}
-
-variable "master_region" {
-  type = string
-}
-
-variable "workers_region" {
-  type = string
+variable "workers_vpc" {
+  description = "the vpc configuration that will host Jenkins worker nodes"
+  type = object({
+    id      = string
+    region  = string
+    cidr    = string
+    subnets = list(string)
+  })
 }
 
 variable "external_ip" {
@@ -66,6 +52,17 @@ variable "workers_ssh_key" {
 variable "webserver_port" {
   type    = number
   default = 8080
+}
+
+variable "ssl_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "ssl_certificate_arn" {
+  type        = string
+  description = "the arn of the ssl certificate for the application load balancer"
+  default     = ""
 }
 
 # ----------------------------------------------------

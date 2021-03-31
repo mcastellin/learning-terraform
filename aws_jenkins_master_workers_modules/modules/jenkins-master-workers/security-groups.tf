@@ -2,7 +2,7 @@ resource "aws_security_group" "jenkins_alb_secgroup" {
   provider = aws.region_master
   name     = "jenkins-alb-secgroup"
 
-  vpc_id = var.master_vpc_id
+  vpc_id = var.master_vpc.id
 
   ingress {
     cidr_blocks = ["0.0.0.0/0"]
@@ -28,7 +28,7 @@ resource "aws_security_group" "jenkins_master_secgroup" {
   provider = aws.region_master
   name     = "jenkins-master-secgroup"
 
-  vpc_id = var.master_vpc_id
+  vpc_id = var.master_vpc.id
 
   ingress {
     description     = "allow application access from load balancer security group"
@@ -39,7 +39,7 @@ resource "aws_security_group" "jenkins_master_secgroup" {
   }
   ingress {
     description = "allow all traffic from peered VPC"
-    cidr_blocks = [var.workers_vpc_cidr]
+    cidr_blocks = [var.workers_vpc.cidr]
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -63,11 +63,11 @@ resource "aws_security_group" "jenkins_workers_secgroup" {
   provider = aws.region_workers
   name     = "jenkins-workers-secgroup"
 
-  vpc_id = var.workers_vpc_id
+  vpc_id = var.workers_vpc.id
 
   ingress {
     description = "allow ssh traffic from master node"
-    cidr_blocks = [var.master_vpc_cidr]
+    cidr_blocks = [var.master_vpc.cidr]
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"

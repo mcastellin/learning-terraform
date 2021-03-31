@@ -70,7 +70,7 @@ resource "aws_iam_policy" "ssm_automation_document_policy" {
           "ssm:SendCommand"
         ]
         Effect   = "Allow"
-        Resource = "arn:aws:ssm:${var.workers_region}::document/AWS-RunShellScript"
+        Resource = "arn:aws:ssm:${var.workers_vpc.region}::document/AWS-RunShellScript"
       },
       {
         Action = [

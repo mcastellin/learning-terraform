@@ -34,7 +34,7 @@ resource "aws_instance" "jenkins_master" {
   key_name                    = aws_key_pair.master_key_pair.key_name
   associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.jenkins_master_secgroup.id]
-  subnet_id                   = element(var.master_subnets_list, 0)
+  subnet_id                   = element(var.master_vpc.subnets, 0)
 
   user_data = templatefile(
     "${path.module}/scripts/master_init.tpl",
@@ -44,7 +44,7 @@ resource "aws_instance" "jenkins_master" {
   )
   provisioner "local-exec" {
     command = <<EOF
-    aws --profile=default ec2 wait instance-status-ok --region ${var.master_region} --instance-ids ${self.id}
+    aws --profile=default ec2 wait instance-status-ok --region ${var.master_vpc.region} --instance-ids ${self.id}
     EOF
   }
 
@@ -85,7 +85,7 @@ resource "aws_autoscaling_group" "jenkins_workers_asg" {
   health_check_type         = "EC2"
 
   launch_configuration = aws_launch_configuration.jenkins_workers_launch_config.id
-  vpc_zone_identifier  = var.workers_subnets_list
+  vpc_zone_identifier  = var.workers_vpc.subnets
 }
 
 # Using the newer launch_configuration to define instances for the autoscaling group
@@ -108,7 +108,7 @@ resource "aws_launch_configuration" "jenkins_workers_launch_config" {
     "${path.module}/scripts/worker_init.tpl",
     {
       "master_ip" = aws_instance.jenkins_master.private_ip
-      "region"    = var.workers_region
+      "region"    = var.workers_vpc.region
     }
   )
 
