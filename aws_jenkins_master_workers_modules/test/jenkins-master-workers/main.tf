@@ -33,4 +33,10 @@ module "jenkins_master_workers" {
   workers_subnets_list = module.vpc.peer_subnets_list
   master_vpc_id        = module.vpc.vpc_id.master
   workers_vpc_id       = module.vpc.vpc_id.peer
+  master_region        = var.region_master
+  workers_region       = var.region_workers
+  master_vpc_cidr      = "10.0.0.0/16"
+  workers_vpc_cidr     = "192.168.0.0/16"
+
+  workers_count = 2
 }

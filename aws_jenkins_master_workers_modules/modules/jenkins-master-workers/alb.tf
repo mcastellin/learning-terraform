@@ -40,3 +40,10 @@ resource "aws_lb_listener" "jenkins_listener_http" {
     target_group_arn = aws_lb_target_group.jenkins_lb_tg.arn
   }
 }
+
+resource "aws_lb_target_group_attachment" "jenkins_master_attach" {
+  provider         = aws.region_master
+  target_group_arn = aws_lb_target_group.jenkins_lb_tg.arn
+  target_id        = aws_instance.jenkins_master.id
+  port             = var.webserver_port
+}

@@ -37,6 +37,20 @@ resource "aws_security_group" "jenkins_master_secgroup" {
     protocol        = "tcp"
     security_groups = [aws_security_group.jenkins_alb_secgroup.id]
   }
+  ingress {
+    description = "allow all traffic from peered VPC"
+    cidr_blocks = [var.workers_vpc_cidr]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+  }
+  ingress {
+    description = "allow all traffic from peered VPC"
+    cidr_blocks = [var.external_ip]
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+  }
   egress {
     cidr_blocks = ["0.0.0.0/0"]
     from_port   = 0
@@ -45,14 +59,22 @@ resource "aws_security_group" "jenkins_master_secgroup" {
   }
 }
 
-resource "aws_security_group" "allow_public_ssh" {
-  provider = aws.region_master
-  name     = "allow_public_ssh"
+resource "aws_security_group" "jenkins_workers_secgroup" {
+  provider = aws.region_workers
+  name     = "jenkins-workers-secgroup"
 
-  vpc_id = var.master_vpc_id
+  vpc_id = var.workers_vpc_id
 
   ingress {
-    cidr_blocks = ["0.0.0.0/0"]
+    description = "allow ssh traffic from master node"
+    cidr_blocks = [var.master_vpc_cidr]
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+  }
+  ingress {
+    description = "allow ssh traffic for administration"
+    cidr_blocks = [var.external_ip]
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"

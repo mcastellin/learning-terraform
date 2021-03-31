@@ -19,6 +19,27 @@ variable "workers_vpc_id" {
   type = string
 }
 
+variable "master_vpc_cidr" {
+  type = string
+}
+
+variable "workers_vpc_cidr" {
+  type = string
+}
+
+variable "master_region" {
+  type = string
+}
+
+variable "workers_region" {
+  type = string
+}
+
+variable "external_ip" {
+  type    = string
+  default = "0.0.0.0/0"
+}
+
 # ----------------------------------------------------
 # Instance configuration
 # ----------------------------------------------------
@@ -58,4 +79,10 @@ variable "master_placement_strategy" {
     condition     = can(regex("^(cluster|partition|spread)$", var.master_placement_strategy))
     error_message = "Invalid value for placement strategy. Allowed values: cluster|partition|spread."
   }
+}
+
+variable "workers_count" {
+  type        = string
+  default     = 1
+  description = "the number of Jenkins worker nodes"
 }
